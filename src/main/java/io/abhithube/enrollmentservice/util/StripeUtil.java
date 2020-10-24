@@ -17,11 +17,11 @@ import static com.stripe.net.ApiResource.GSON;
 
 @Component
 public class StripeUtil {
-    @Value("${stripe.keys.secret}")
-    private String API_SECRET_KEY;
+    @Value("${stripe.api.key}")
+    private String STRIPE_API_KEY;
 
     public Customer createCustomer(String email, String sourceId) throws CustomStripeException {
-        Stripe.apiKey = API_SECRET_KEY;
+        Stripe.apiKey = STRIPE_API_KEY;
         CustomerCreateParams customerCreateParams = CustomerCreateParams.builder()
                 .setEmail(email)
                 .setSource(sourceId)
@@ -35,7 +35,7 @@ public class StripeUtil {
     }
 
     public Subscription createSubscription(String customerId, String priceId) throws CustomStripeException {
-        Stripe.apiKey = API_SECRET_KEY;
+        Stripe.apiKey = STRIPE_API_KEY;
         SubscriptionCreateParams subscriptionCreateParams = SubscriptionCreateParams.builder()
                 .setCustomer(customerId)
                 .addItem(SubscriptionCreateParams.Item.builder()
@@ -51,7 +51,7 @@ public class StripeUtil {
     }
 
     public Subscription retrieveSubscription(String subscriptionId) throws CustomStripeException {
-        Stripe.apiKey = API_SECRET_KEY;
+        Stripe.apiKey = STRIPE_API_KEY;
         try {
             return Subscription.retrieve(subscriptionId);
         } catch (StripeException e) {
@@ -60,7 +60,7 @@ public class StripeUtil {
     }
 
     public void cancelSubscription(String subscriptionId) throws CustomStripeException {
-        Stripe.apiKey = API_SECRET_KEY;
+        Stripe.apiKey = STRIPE_API_KEY;
         try {
             Subscription.retrieve(subscriptionId)
                     .cancel();

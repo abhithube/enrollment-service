@@ -2,6 +2,7 @@ package io.abhithube.enrollmentservice.controller;
 
 import io.abhithube.enrollmentservice.dto.EnrollmentRequest;
 import io.abhithube.enrollmentservice.service.EnrollmentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
+    @Autowired
     public EnrollmentController(EnrollmentService enrollmentService) {
         this.enrollmentService = enrollmentService;
     }

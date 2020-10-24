@@ -1,6 +1,5 @@
 package io.abhithube.enrollmentservice.service;
 
-import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.model.Customer;
 import com.stripe.model.Invoice;
 import com.stripe.model.Subscription;
@@ -17,7 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -50,7 +50,7 @@ class EnrollmentServiceTest {
         subscription.setId("sub123");
         subscription.setCurrentPeriodStart(0L);
         when(stripeUtil.createSubscription(anyString(), anyString()))
-            .thenReturn(subscription);
+                .thenReturn(subscription);
 
         doNothing()
                 .when(restClient).updateMember(any(Member.class));

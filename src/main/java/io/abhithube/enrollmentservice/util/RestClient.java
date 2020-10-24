@@ -26,8 +26,8 @@ public class RestClient {
         return restTemplate.getForEntity(baseUrl + "customer/" + customerId, Member.class);
     }
 
-    public ResponseEntity<Member> updateMember(Member member) {
-        return restTemplate.exchange(baseUrl + member.getUsername(), HttpMethod.PUT,
+    public void updateMember(Member member) {
+        restTemplate.exchange(baseUrl + member.getUsername(), HttpMethod.PUT,
                 new HttpEntity<>(member), Member.class);
     }
 }

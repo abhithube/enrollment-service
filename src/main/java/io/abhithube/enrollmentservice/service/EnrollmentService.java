@@ -11,6 +11,7 @@ import io.abhithube.enrollmentservice.dto.Plan;
 import io.abhithube.enrollmentservice.exception.CustomStripeException;
 import io.abhithube.enrollmentservice.util.RestClient;
 import io.abhithube.enrollmentservice.util.StripeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class EnrollmentService {
     private final StripeUtil stripeUtil;
     private final RestClient restClient;
 
+    @Autowired
     public EnrollmentService(StripeUtil stripeUtil, RestClient restClient) {
         this.stripeUtil = stripeUtil;
         this.restClient = restClient;
