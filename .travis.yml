@@ -1,0 +1,14 @@
+language: java
+jdk: openjdk11
+
+services: docker
+
+install: true
+
+script: docker build -t insurance-portal/enrollment .
+
+deploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    branch: master
