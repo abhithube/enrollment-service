@@ -1,6 +1,6 @@
-services: docker
+language: minimal
 
-install: true
+install: skip
 
 script: docker build -t insurance-portal/enrollment .
 
