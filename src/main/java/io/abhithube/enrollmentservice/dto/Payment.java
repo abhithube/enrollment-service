@@ -10,7 +10,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Payment {
-    private UUID id = UUID.randomUUID();
+    private String id = UUID.randomUUID().toString();
     private Long amount;
     private long createdAt;
     private String plan;
