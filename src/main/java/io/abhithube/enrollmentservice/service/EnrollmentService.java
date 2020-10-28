@@ -9,9 +9,11 @@ import io.abhithube.enrollmentservice.dto.Member;
 import io.abhithube.enrollmentservice.dto.Payment;
 import io.abhithube.enrollmentservice.dto.Plan;
 import io.abhithube.enrollmentservice.exception.CustomStripeException;
+import io.abhithube.enrollmentservice.util.KafkaClient;
 import io.abhithube.enrollmentservice.util.RestClient;
 import io.abhithube.enrollmentservice.util.StripeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +21,13 @@ import org.springframework.stereotype.Service;
 public class EnrollmentService {
     private final StripeUtil stripeUtil;
     private final RestClient restClient;
+    private final KafkaClient kafkaClient;
 
     @Autowired
-    public EnrollmentService(StripeUtil stripeUtil, RestClient restClient) {
+    public EnrollmentService(StripeUtil stripeUtil, RestClient restClient, KafkaClient kafkaClient) {
         this.stripeUtil = stripeUtil;
         this.restClient = restClient;
+        this.kafkaClient = kafkaClient;
     }
 
     public void createEnrollment(EnrollmentRequest enrollmentRequest) throws CustomStripeException {
@@ -31,8 +35,8 @@ public class EnrollmentService {
         String sourceId = enrollmentRequest.getSourceId();
         Plan plan = enrollmentRequest.getPlan();
 
-        ResponseEntity<Member> responseEntity = restClient.getMember(username);
-        Member member = responseEntity.getBody();
+        ResponseEntity<Member> toUpdate = restClient.getMember(username);
+        Member member = toUpdate.getBody();
         assert member != null;
 
         String customerId = member.getCustomerId();
@@ -49,12 +53,14 @@ public class EnrollmentService {
         member.setSubscriptionId(subscription.getId());
         member.setMemberSince(subscription.getCurrentPeriodStart());
 
-        restClient.updateMember(member);
+        ResponseEntity<Member> updated = restClient.updateMember(member);
+        if (updated != null && updated.getStatusCode() == HttpStatus.OK)
+            kafkaClient.publish(updated.getBody(), "enrollment");
     }
 
     public void cancelEnrollment(String username) throws CustomStripeException {
-        ResponseEntity<Member> responseEntity = restClient.getMember(username);
-        Member member = responseEntity.getBody();
+        ResponseEntity<Member> toUpdate = restClient.getMember(username);
+        Member member = toUpdate.getBody();
         assert member != null;
 
         stripeUtil.cancelSubscription(member.getSubscriptionId());
@@ -64,14 +70,16 @@ public class EnrollmentService {
         member.setMemberSince(0);
         member.setNextPaymentDate(0);
 
-        restClient.updateMember(member);
+        ResponseEntity<Member> updated = restClient.updateMember(member);
+        if (updated != null && updated.getStatusCode() == HttpStatus.OK)
+            kafkaClient.publish(updated.getBody(), "cancellation");
     }
 
     public void saveTransaction(String json) throws CustomStripeException, EventDataObjectDeserializationException {
         Invoice invoice = stripeUtil.extractInvoice(json);
 
-        ResponseEntity<Member> responseEntity = restClient.getCustomer(invoice.getCustomer());
-        Member member = responseEntity.getBody();
+        ResponseEntity<Member> toUpdate = restClient.getCustomer(invoice.getCustomer());
+        Member member = toUpdate.getBody();
         assert member != null;
 
         Payment payment = new Payment();
@@ -85,6 +93,8 @@ public class EnrollmentService {
         member.setNextPaymentDate(subscription.getCurrentPeriodEnd());
         member.addToPayments(payment);
 
-        restClient.updateMember(member);
+        ResponseEntity<Member> updated = restClient.updateMember(member);
+        if (updated != null && updated.getStatusCode() == HttpStatus.OK)
+            kafkaClient.publish(updated.getBody(), "payment");
     }
 }

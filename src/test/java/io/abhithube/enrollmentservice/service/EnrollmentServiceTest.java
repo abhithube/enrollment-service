@@ -6,6 +6,7 @@ import com.stripe.model.Subscription;
 import io.abhithube.enrollmentservice.dto.EnrollmentRequest;
 import io.abhithube.enrollmentservice.dto.Member;
 import io.abhithube.enrollmentservice.dto.Plan;
+import io.abhithube.enrollmentservice.util.KafkaClient;
 import io.abhithube.enrollmentservice.util.RestClient;
 import io.abhithube.enrollmentservice.util.StripeUtil;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,8 @@ class EnrollmentServiceTest {
     private StripeUtil stripeUtil;
     @Mock
     private RestClient restClient;
+    @Mock
+    private KafkaClient kafkaClient;
 
     @Test
     @DisplayName("it should enroll a new customer")
@@ -52,8 +55,11 @@ class EnrollmentServiceTest {
         when(stripeUtil.createSubscription(anyString(), anyString()))
                 .thenReturn(subscription);
 
+        when(restClient.updateMember(any(Member.class)))
+                .thenReturn(responseEntity);
+
         doNothing()
-                .when(restClient).updateMember(any(Member.class));
+                .when(kafkaClient).publish(any(Member.class), anyString());
 
         // Act
         Plan plan = new Plan();
@@ -63,6 +69,7 @@ class EnrollmentServiceTest {
 
         // Assert
         verify(stripeUtil).createCustomer("email", "source");
+        verify(kafkaClient).publish(responseEntity.getBody(), "enrollment");
         assertEquals("sub123", member.getSubscriptionId());
         assertEquals(plan, member.getPlan());
     }
@@ -83,8 +90,11 @@ class EnrollmentServiceTest {
         when(stripeUtil.createSubscription(anyString(), anyString()))
                 .thenReturn(subscription);
 
+        when(restClient.updateMember(any(Member.class)))
+                .thenReturn(responseEntity);
+
         doNothing()
-                .when(restClient).updateMember(any(Member.class));
+                .when(kafkaClient).publish(any(Member.class), anyString());
 
         // Act
         Plan plan = new Plan();
@@ -94,6 +104,7 @@ class EnrollmentServiceTest {
 
         // Assert
         verify(stripeUtil, times(0)).createCustomer(anyString(), anyString());
+        verify(kafkaClient).publish(responseEntity.getBody(), "enrollment");
         assertEquals("sub123", member.getSubscriptionId());
         assertEquals(plan, member.getPlan());
     }
@@ -111,14 +122,18 @@ class EnrollmentServiceTest {
         doNothing()
                 .when(stripeUtil).cancelSubscription(nullable(String.class));
 
+        when(restClient.updateMember(any(Member.class)))
+                .thenReturn(responseEntity);
+
         doNothing()
-                .when(restClient).updateMember(any(Member.class));
+                .when(kafkaClient).publish(any(Member.class), anyString());
 
         // Act
         enrollmentService.cancelEnrollment("test");
 
         // Assert
         verify(stripeUtil).cancelSubscription("sub123");
+        verify(kafkaClient).publish(responseEntity.getBody(), "cancellation");
         assertNull(member.getSubscriptionId());
     }
 
@@ -146,8 +161,11 @@ class EnrollmentServiceTest {
         when(stripeUtil.retrieveSubscription(anyString()))
                 .thenReturn(subscription);
 
+        when(restClient.updateMember(any(Member.class)))
+                .thenReturn(responseEntity);
+
         doNothing()
-                .when(restClient).updateMember(any(Member.class));
+                .when(kafkaClient).publish(any(Member.class), anyString());
 
         // Act
         enrollmentService.saveTransaction("json");
@@ -155,6 +173,7 @@ class EnrollmentServiceTest {
         // Assert
         verify(restClient).getCustomer("cust123");
         verify(stripeUtil).retrieveSubscription("sub123");
+        verify(kafkaClient).publish(responseEntity.getBody(), "payment");
         assertEquals(member.getPayments().size(), 1);
     }
 }
