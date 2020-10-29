@@ -8,16 +8,16 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaTopicConfig {
     @Bean
     public NewTopic enrollmentTopic() {
-        return new NewTopic("enrollment", 1, (short) 3);
+        return new NewTopic("enrollment", 1, (short) 2);
     }
 
     @Bean
     public NewTopic cancellationTopic() {
-        return new NewTopic("cancellation", 1, (short) 3);
+        return new NewTopic("cancellation", 1, (short) 2);
     }
 
     @Bean
     public NewTopic paymentTopic() {
-        return new NewTopic("payment", 1, (short) 3);
+        return new NewTopic("payment", 1, (short) 2);
     }
 }

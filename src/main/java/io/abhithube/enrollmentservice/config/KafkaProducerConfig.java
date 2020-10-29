@@ -3,6 +3,7 @@ package io.abhithube.enrollmentservice.config;
 import io.abhithube.enrollmentservice.dto.Member;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -15,13 +16,14 @@ import java.util.Map;
 
 @Configuration
 public class KafkaProducerConfig {
+    @Value("spring.kafka.bootstrap-servers")
+    private String BOOTSTRAP_SERVERS;
+
     @Bean
     public ProducerFactory<String, Member> producerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "b-1.insurance-portal-kafka.np9xnf.c1.kafka.us-west-2.amazonaws.com:9094," +
-                "b-2.insurance-portal-kafka.np9xnf.c1.kafka.us-west-2.amazonaws.com:9094"
-        );
+
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
