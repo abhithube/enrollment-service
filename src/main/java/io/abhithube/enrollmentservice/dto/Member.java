@@ -27,6 +27,6 @@ public class Member {
     private String subscriptionId;
 
     public void addToPayments(Payment payment) {
-        payments.add(payment);
+        payments.add(0, payment);
     }
 }
