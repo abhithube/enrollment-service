@@ -2,6 +2,7 @@ package io.abhithube.enrollmentservice.util;
 
 import io.abhithube.enrollmentservice.dto.Member;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class RestClient {
     private final RestTemplate restTemplate;
-    private final String baseUrl = "https://at-insurance.com/api/v1/members/";
+    @Value("${client.members.url}")
+    private String baseUrl;
 
     @Autowired
     public RestClient(RestTemplate restTemplate) {
