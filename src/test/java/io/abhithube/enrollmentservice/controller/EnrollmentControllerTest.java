@@ -1,6 +1,8 @@
 package io.abhithube.enrollmentservice.controller;
 
 import io.abhithube.enrollmentservice.dto.EnrollmentRequest;
+import io.abhithube.enrollmentservice.dto.Member;
+import io.abhithube.enrollmentservice.dto.Plan;
 import io.abhithube.enrollmentservice.service.EnrollmentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,10 +12,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EnrollmentControllerTest {
@@ -26,14 +29,21 @@ class EnrollmentControllerTest {
     @DisplayName("it should enroll a member")
     void createEnrollment() throws Exception {
         // Arrange
-        doNothing()
-                .when(enrollmentService).createEnrollment(any(EnrollmentRequest.class));
+        Member in = new Member();
+        Plan plan = new Plan();
+        plan.setName("plan123");
+        in.setPlan(plan);
+        when(enrollmentService.createEnrollment(any(EnrollmentRequest.class)))
+                .thenReturn(ResponseEntity.ok(in));
 
         // Act
-        ResponseEntity<String> responseEntity = enrollmentController.createEnrollment(new EnrollmentRequest());
+        ResponseEntity<Member> responseEntity = enrollmentController.createEnrollment(new EnrollmentRequest());
 
         // Assert
+        Member out = responseEntity.getBody();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+        assertNotNull(out);
+        assertEquals("plan123", out.getPlan().getName());
     }
 
 
@@ -41,14 +51,18 @@ class EnrollmentControllerTest {
     @DisplayName("it should cancel a member's enrollment")
     void cancelEnrollment() throws Exception {
         // Arrange
-        doNothing()
-                .when(enrollmentService).cancelEnrollment(anyString());
+        Member in = new Member();
+        when(enrollmentService.cancelEnrollment(anyString()))
+                .thenReturn(ResponseEntity.ok(in));
 
         // Act
-        ResponseEntity<String> responseEntity = enrollmentController.cancelEnrollment("test");
+        ResponseEntity<Member> responseEntity = enrollmentController.cancelEnrollment("test");
 
         // Assert
+        Member out = responseEntity.getBody();
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+        assertNotNull(out);
+        assertNull(out.getPlan());
     }
 
 
@@ -60,7 +74,7 @@ class EnrollmentControllerTest {
                 .when(enrollmentService).saveTransaction(anyString());
 
         // Act
-        ResponseEntity<String> responseEntity = enrollmentController.saveTransaction("test");
+        ResponseEntity<Void> responseEntity = enrollmentController.saveTransaction("test");
 
         // Assert
         assertTrue(responseEntity.getStatusCode().is2xxSuccessful());

@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Payment {
     private String id = UUID.randomUUID().toString();
-    private Long amount;
+    private long amount;
     private long createdAt;
     private String plan;
 

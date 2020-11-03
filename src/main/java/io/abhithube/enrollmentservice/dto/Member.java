@@ -21,7 +21,7 @@ public class Member {
     private long nextPaymentDate;
     private List<Payment> payments = new ArrayList<>();
 
-    private List<Notification> notifications = new ArrayList<>();
+    private List<Notification> notifications;
 
     private String customerId;
     private String subscriptionId;

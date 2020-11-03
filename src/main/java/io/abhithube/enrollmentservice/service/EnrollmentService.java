@@ -30,7 +30,7 @@ public class EnrollmentService {
         this.kafkaClient = kafkaClient;
     }
 
-    public void createEnrollment(EnrollmentRequest enrollmentRequest) throws CustomStripeException {
+    public ResponseEntity<Member> createEnrollment(EnrollmentRequest enrollmentRequest) throws CustomStripeException {
         String username = enrollmentRequest.getUsername();
         String sourceId = enrollmentRequest.getSourceId();
         Plan plan = enrollmentRequest.getPlan();
@@ -56,9 +56,11 @@ public class EnrollmentService {
         ResponseEntity<Member> updated = restClient.updateMember(member);
         if (updated != null && updated.getStatusCode() == HttpStatus.OK)
             kafkaClient.publish(updated.getBody(), "enrollment");
+
+        return updated;
     }
 
-    public void cancelEnrollment(String username) throws CustomStripeException {
+    public ResponseEntity<Member> cancelEnrollment(String username) throws CustomStripeException {
         ResponseEntity<Member> toUpdate = restClient.getMember(username);
         Member member = toUpdate.getBody();
         assert member != null;
@@ -73,6 +75,8 @@ public class EnrollmentService {
         ResponseEntity<Member> updated = restClient.updateMember(member);
         if (updated != null && updated.getStatusCode() == HttpStatus.OK)
             kafkaClient.publish(updated.getBody(), "cancellation");
+
+        return updated;
     }
 
     public void saveTransaction(String json) throws CustomStripeException, EventDataObjectDeserializationException {
