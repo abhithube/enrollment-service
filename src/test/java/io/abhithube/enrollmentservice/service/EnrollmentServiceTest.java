@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -152,6 +154,7 @@ class EnrollmentServiceTest {
 
         Member member = new Member();
         member.setPlan(new Plan());
+        member.setPayments(new ArrayList<>());
         ResponseEntity<Member> responseEntity = ResponseEntity.ok(member);
         when(restClient.getCustomer(anyString()))
                 .thenReturn(responseEntity);
