@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -19,7 +18,7 @@ public class Member {
     private Plan plan;
     private long memberSince;
     private long nextPaymentDate;
-    private List<Payment> payments = new ArrayList<>();
+    private List<Payment> payments;
 
     private List<Notification> notifications;
 
